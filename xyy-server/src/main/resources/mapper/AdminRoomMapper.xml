@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wdd.xyy.mapper.AdminRoomMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wdd.xyy.pojo.AdminRoom">
+        <id column="id" property="id"/>
+        <result column="admin_id" property="adminId"/>
+        <result column="room_id" property="roomId"/>
+    </resultMap>
+    <select id="getAdminRoom" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select ifnull(SUM(ar.room_id),0)
+        from t_admin_room ar
+        where ar.admin_id=#{adminId};
+    </select>
+
+
+    <select id="selectAdminWithRoom" resultType="com.wdd.xyy.pojo.AdminRoom" parameterType="java.lang.Integer">
+        select *
+        from t_admin_room ar
+        where ar.room_id=#{id}
+    </select>
+</mapper>

@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wdd.xyy.mapper.RoomMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wdd.xyy.pojo.Room">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="date_time" property="dateTime"/>
+        <result column="expire_time" property="expireTime"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="disabled" property="disabled"/>
+    </resultMap>
+    
+    <resultMap id="RoomWithAdmin" type="com.wdd.xyy.pojo.Room" extends="BaseResultMap">
+        <collection property="children" ofType="com.wdd.xyy.pojo.Room">
+            <id column="rid" property="id" />
+            <result column="rname" property="name" />
+            <result column="rdateTime" property="dateTime"/>
+            <result column="rexpireTime" property="expireTime"/>
+            <result column="rparentId" property="parentId"/>
+            <result column="rdisabled" property="disabled"/>
+        </collection>
+    </resultMap>
+
+
+    <select id="getRooms" resultMap="RoomWithAdmin">
+        select r.id,
+               r.name,
+               r.date_time,
+               r.expire_time,
+               r.parent_id,
+               r.disabled,
+               r2.id rid,
+               r2.name rname,
+               r2.date_time rdateTime,
+               r2.expire_time rexpireTime,
+               r2.parent_id rparentId,
+               r2.disabled rdisabled
+        from t_room r,
+             t_room r2
+        where r.id=r2.parent_id
+    </select>
+
+    <resultMap id="RoomWithTeacher" type="com.wdd.xyy.pojo.Room" extends="BaseResultMap">
+        <collection property="admin" ofType="com.wdd.xyy.pojo.Admin">
+            <id column="aname" property="name"/>
+            <collection property="roles" ofType="com.wdd.xyy.pojo.Role">
+                <id column="roname" property="name"/>
+            </collection>
+        </collection>
+    </resultMap>
+    <select id="getRoomTeacher" resultMap="RoomWithTeacher">
+        select r.id,
+               a.name as aname,
+               ro.name as roname
+
+        from t_room r,
+             t_admin_room ar,
+             t_role ro,
+             t_admin a
+        where ro.id=2
+          and r.parent_id=0
+          and a.id=ar.admin_id
+          and ar.room_id=r.id
+    </select>
+
+    <resultMap id="RoomDataInfo" type="com.wdd.xyy.pojo.Room" extends="BaseResultMap">
+        <collection property="children" ofType="com.wdd.xyy.pojo.Room">
+            <id column="rname" property="name"/>
+        </collection>
+    </resultMap>
+
+
+
+    <select id="getDataInfo" resultMap="RoomDataInfo">
+        select r.id,
+               r1.name as rname,
+               r.name,
+               r.date_time,
+               r.expire_time
+        from t_room r,
+             t_room r1,
+             t_admin a,
+             t_admin_room ar
+        where a.id=#{adminId}
+          and ar.admin_id=a.id
+          and ar.room_id=r.id
+          and r.parent_id=r1.id
+    </select>
+
+
+<!--    <resultMap id="TeacherWithClassroom" type="com.wdd.xyy.pojo.Room" extends="BaseResultMap">-->
+<!--        <collection property="children" ofType="com.wdd.xyy.pojo.Room">-->
+<!--            <id column="rid" property="id" />-->
+<!--            <result column="rname" property="name" />-->
+<!--            <result column="rdateTime" property="dateTime"/>-->
+<!--            <collection property="admin" ofType="com.wdd.xyy.pojo.Admin">-->
+<!--                <id column="aid" property="id"/>-->
+<!--                <result column="aname" property="name"/>-->
+<!--                <collection property="roles" ofType="com.wdd.xyy.pojo.Role">-->
+<!--                    <id column="roname" property="name"/>-->
+<!--                </collection>-->
+<!--            </collection>-->
+<!--        </collection>-->
+<!--    </resultMap>-->
+
+<!--    <select id="getTeacherConfig" resultMap="TeacherWithClassroom">-->
+<!--        select r.id,-->
+<!--               r.name,-->
+<!--               r.date_time,-->
+<!--               r.expire_time,-->
+<!--               r1.id rid,-->
+<!--               r1.name rname,-->
+<!--               r1.date_time rdateTime,-->
+<!--               a1.id aid,-->
+<!--               a1.name aname,-->
+<!--               ro.name roname-->
+<!--        from t_admin_room ar,-->
+<!--             t_admin_room ar1,-->
+<!--             t_admin a,-->
+<!--             t_admin a1,-->
+<!--             t_room r,-->
+<!--             t_room r1,-->
+<!--             t_role ro-->
+<!--        where a.id=ar.admin_id-->
+<!--          and ar.room_id=r.id-->
+<!--          and r.id=r1.parent_id-->
+<!--          and r1.disabled=true-->
+<!--          and r1.id=ar1.room_id-->
+<!--          and ar1.admin_id=a1.id-->
+<!--          and a1.role_id=ro.id-->
+<!--        <if test="null!=adminId and ''!=adminId">-->
+<!--            and a.id=#{adminId}-->
+<!--        </if>-->
+<!--    </select>-->
+
+
+    <resultMap id="TeacherWithClassroom" type="com.wdd.xyy.pojo.Room" extends="BaseResultMap">
+        <collection property="children" ofType="com.wdd.xyy.pojo.Room">
+            <id column="rid" property="id" />
+            <result column="rname" property="name" />
+            <result column="rdateTime" property="dateTime"/>
+            <collection property="admin" ofType="com.wdd.xyy.pojo.Admin">
+                <id column="aid" property="id"/>
+                <result column="a1name" property="name"/>
+                <collection property="roles" ofType="com.wdd.xyy.pojo.Role">
+                    <id column="ro1name" property="name"/>
+                </collection>
+            </collection>
+        </collection>
+
+        <collection property="admin" ofType="com.wdd.xyy.pojo.Admin">
+            <id column="aid" property="id"/>
+            <result column="aname" property="name"/>
+            <collection property="roles" ofType="com.wdd.xyy.pojo.Role">
+                <id column="roname" property="name"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="getTeacherConfig" resultMap="TeacherWithClassroom" >
+        select r.id,
+               r.name,
+               r.date_time,
+               r.expire_time,
+               r1.id        rid,
+               r1.name      rname,
+               r1.date_time rdateTime,
+               a1.id        aid,
+               a1.name      a1name,
+               a.name       aname,
+               ro.name      roname,
+               ro1.name     ro1name
+        from t_admin_room ar,
+             t_admin_room ar1,
+             t_admin a,
+             t_admin a1,
+             t_room r,
+             t_room r1,
+             t_role ro1,
+             t_role ro
+        where a.id = ar.admin_id
+          and ar.room_id = r.id
+          and r.id = r1.parent_id
+          and r1.disabled = true
+          and r1.id = ar1.room_id
+          and ar1.admin_id = a1.id
+          and a1.role_id = ro1.id
+          and a.role_id = ro.id
+        <if test="null!=adminId and ''!=adminId">
+            and a.id=#{adminId}
+        </if>
+    </select>
+
+    <resultMap id="StudentWithRoom" type="com.wdd.xyy.pojo.Room" extends="BaseResultMap">
+        <collection property="admin" ofType="com.wdd.xyy.pojo.Admin">
+            <id column="aid" property="id"/>
+            <result column="aname" property="name"/>
+            <result column="ausername" property="username"/>
+            <result column="aemail" property="email"/>
+            <collection property="roles" ofType="com.wdd.xyy.pojo.Role">
+                <id  column="roname" property="name"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="getStudentData" resultMap="StudentWithRoom">
+        select r.id,
+               r.name,
+               r.date_time,
+               a.id aid,
+               a.name aname,
+               a.username ausername,
+               a.email aemail,
+               ro.name roname
+        from t_room r,
+             t_role ro,
+             t_admin a
+        where r.id=#{roomId}
+          and a.id=#{adminId}
+          and a.role_id=ro.id
+    </select>
+
+
+    <resultMap id="RoomDataInfoStudent" type="com.wdd.xyy.pojo.Room" extends="BaseResultMap">
+        <collection property="children" ofType="com.wdd.xyy.pojo.Room">
+            <id column="rname" property="name"/>
+        </collection>
+    </resultMap>
+
+
+    <select id="getDataInfoStudent" resultMap="RoomDataInfoStudent">
+        select r.id,
+               r1.name as rname,
+               r.name,
+               r.date_time,
+               r.expire_time
+        from t_room r,
+             t_room r1,
+             t_admin a,
+             t_admin_room ar
+        where a.id=#{adminId}
+          and ar.admin_id=a.id
+          and ar.room_id=r.id
+          and r.parent_id=r1.id
+    </select>
+
+
+
+
+    <select id="getDataInfoTeacher" resultType="com.wdd.xyy.pojo.Room">
+        select r.id,
+               r.name,
+               r.date_time,
+               r.expire_time
+        from t_room r,
+             t_admin a,
+             t_admin_room ar
+        where a.id=#{adminId}
+          and ar.admin_id=a.id
+          and ar.room_id=r.id
+          and r.parent_id=0
+    </select>
+
+
+    <resultMap id="AdminByRoomId" type="com.wdd.xyy.pojo.Room" extends="BaseResultMap">
+       <collection property="admin" ofType="com.wdd.xyy.pojo.Admin" >
+           <id column="aid" property="id"/>
+           <result column="aname" property="name"/>
+           <collection property="roles" ofType="com.wdd.xyy.pojo.Role">
+               <id column="roid" property="id"/>
+               <result column="roname" property="name"/>
+           </collection>
+       </collection>
+    </resultMap>
+
+    <select id="getTeacherByRoomId" resultMap="AdminByRoomId">
+        select r.id ,
+               r.name ,
+               r.date_time ,
+               r.expire_time ,
+               a.id aid,
+               a.name aname,
+               ro.id roid,
+               ro.name roname
+        from t_admin_room ar,
+             t_admin a,
+             t_role ro,
+             t_room r
+        where ar.room_id=#{roomId}
+          and ar.admin_id=a.id
+          and a.role_id=ro.id
+          and ar.room_id=r.id
+    </select>
+
+    <select id="getAdminIsFull" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+        select ifnull(SUM(ar.admin_id), 0)
+        from t_admin_room ar
+        where ar.room_id = #{roomId}
+    </select>
+
+    <resultMap id="ChildrenWithParentId" type="com.wdd.xyy.pojo.Room" >
+        <id column="id" property="id"/>
+    </resultMap>
+
+    <select id="getChildrenId" resultMap="ChildrenWithParentId" >
+        select r1.id
+        from t_room r,
+             t_room r1
+        where r.id=r1.parent_id
+          and r.id=#{roomId}
+    </select>
+
+
+</mapper>

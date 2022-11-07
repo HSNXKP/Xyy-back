@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wdd.xyy.mapper.MenuMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wdd.xyy.pojo.Menu">
+        <id column="id" property="id"/>
+        <result column="url" property="url"/>
+        <result column="path" property="path"/>
+        <result column="component" property="component"/>
+        <result column="name" property="name"/>
+        <result column="icon_cls" property="iconCls"/>
+        <result column="parent_id" property="parentId"/>
+    </resultMap>
+
+    <resultMap id="MenusWithAdmin" type="com.wdd.xyy.pojo.Menu" extends="BaseResultMap">
+        <collection property="children" ofType="com.wdd.xyy.pojo.Menu">
+            <id column="id2" property="id" />
+            <result column="url2" property="url" />
+            <result column="path2" property="path" />
+            <result column="component2" property="component" />
+            <result column="name2" property="name" />
+            <result column="icon_cls2" property="iconCls" />
+            <result column="parent_id2" property="parentId" />
+        </collection>
+    </resultMap>
+
+    <select id="getMenusByAdminId" resultMap="MenusWithAdmin" parameterType="java.lang.Integer">
+        select m.id,
+        m.url,
+        m.path,
+        m.component,
+        m.name,
+        m.icon_cls,
+        m.parent_id,
+        m2.id as id2,
+        m2.name as name2,
+        m2.path as path2,
+        m2.component as component2,
+        m2.icon_cls as icon_cls2,
+        m2.parent_id as parent_id2
+        from t_menu m,
+        t_role_menu rm,
+        t_role r,
+        t_menu m2,
+        t_admin a
+        where
+        a.role_id=r.id
+        and rm.role_id=r.id
+        and rm.menu_id=m.id
+        and m2.parent_id=m.id
+        and a.id=#{adminId}
+    </select>
+
+
+    <resultMap id="MenusWithRoles" type="com.wdd.xyy.pojo.Menu" extends="BaseResultMap">
+        <collection property="roles" ofType="com.wdd.xyy.pojo.Role">
+            <id column="rid" property="id" />
+            <result column="rname" property="name" />
+        </collection>
+    </resultMap>
+
+
+    <select id="getMenusWithRoles" resultMap="MenusWithRoles">
+        select m.id,
+               m.url,
+               m.path,
+               m.component,
+               m.name,
+               m.icon_cls,
+               m.parent_id,
+               r.id as rid,
+               r.name as rname
+        from t_menu m,
+             t_role_menu rm,
+             t_role r
+        where
+            rm.role_id=r.id
+          and rm.menu_id=m.id
+    </select>
+
+
+</mapper>
